@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import * as AWS from 'aws-sdk';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { Message } from 'src/schema/contactus.schema';
 
 @Injectable()
@@ -46,20 +46,38 @@ export class MediaService {
   }
 
   async getMedia(filePath: string) {
-    const Url = await this.s3.getSignedUrl('getObject', {
-      Bucket: process.env.S3_BUCKET_NAME,
-      Key: filePath,
-    });
-    return { Url };
+    try {
+      const Url = await this.s3.getSignedUrl('getObject', {
+        Bucket: process.env.S3_BUCKET_NAME,
+        Key: filePath,
+      });
+      return { Url };
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   async addMessage(body) {
-    const message = await this.messageModal.create(body);
-    return message;
+    try {
+      return await this.messageModal.create(body);
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   async getMessages(body = {}) {
-    const messages = await this.messageModal.find({});
-    return messages;
+    try {
+      return await this.messageModal.find({});
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  deleteMessageById(id) {
+    try {
+      return this.messageModal.findOneAndDelete(id);
+    } catch (error) {
+      console.log(error);
+    }
   }
 }
